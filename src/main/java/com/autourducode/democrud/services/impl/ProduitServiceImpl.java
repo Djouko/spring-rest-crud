@@ -1,5 +1,7 @@
 package com.autourducode.democrud.services.impl;
 
+import com.autourducode.democrud.configs.exceptions.MyException;
+import com.autourducode.democrud.configs.exceptions.MyExceptionPayLoad;
 import com.autourducode.democrud.models.dto.ProduitDto;
 import com.autourducode.democrud.models.entities.ProduitEntity;
 import com.autourducode.democrud.repositories.ProduitRepository;
@@ -56,8 +58,14 @@ public class ProduitServiceImpl implements ProduitService {
 
     @Override
     public String deleteProduit(String id) {
-        produitRepository.findById(id)
-                .ifPresentOrElse(produitRepository::delete, () -> new RuntimeException("Produit non trouvé!"));
+        ProduitEntity p = produitRepository.findById(id)
+                .orElseThrow(() -> new MyException(
+                        MyExceptionPayLoad.builder()
+                                .httpCode(404)
+                                .message("Produit non trouvé")
+                                .build()
+                ));
+        produitRepository.delete(p);
         return "Produit supprimé !";
     }
 }
